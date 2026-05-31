@@ -1,5 +1,3 @@
-
-
 # Web Fuzzing
 
 So its not that complicated, first thing fuzz 
