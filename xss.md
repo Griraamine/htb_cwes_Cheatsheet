@@ -66,12 +66,6 @@ location.search -> clean -> document.write
 3 FIND SINKS: 
 search for dangerous functions like innerHTML, document.write, eval, setTimeout then check does any of them receive data from the source
 
-
-
-
-
-
-
 # Remarks
 
  location.search 
