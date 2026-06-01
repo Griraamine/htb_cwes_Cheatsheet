@@ -35,13 +35,7 @@ x:
 
 > Concepts: one webserver can host multiple web apps. so its divided to Vhosts, (like VMs inside the server) , subdomains are a way to distinguish between Vhosts for example app.example.com -> application VHost and blog.example.com -> blog VHost
 
-
-
 The server knows which domain is requested in the URL and but it knows which host(or Vhost) is requested in the `Host` Header
-
-
-
-
 
 **VHost fuzzing** 
 
@@ -60,21 +54,20 @@ $ gobuster vhost -u http://domain:port -w wordlist --append-domain
   ```shellsession
   $ ffuf -u http://FUZZ.domain/ -w wordlist.txt
   
-  
   admin.example.com
   dev.example.com
   test.example.com
   ```
   
-   
+  
 
 **Subdomain fuzzing** 
 
-- **using gobuster** : 
-
-```shellsession
-$ gobuster dns --domain example.com -w /usr/share/wordlists/SecLists/Discovery/DNS//subdomains-top1million-5000.txt
-```
+-  **using gobuster** : 
+  
+  ```shellsession
+  $ gobuster dns --domain example.com -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
+  ```
 
 `dns` activates gobuster's DNS fuzzing mode, directing it to focus on discovering subdomains.
 
@@ -85,10 +78,8 @@ add `--timeout 5s` if it gives error **[ERROR] lookup alpha.inlanefreight.com.: 
   ```shellsession
   ffuf -u http://domain/ -H "Host: FUZZ.domain" -w wordlist.txt
   ```
-  
-  
 
-
+> preffered wordlists for these fuzzing can be found at /usr/share/wordlists/SecLists/Discovery/DNS/
 
 #### API fuzzing
 

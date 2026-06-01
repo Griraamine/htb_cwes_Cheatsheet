@@ -47,6 +47,7 @@ Zone transfer vuln is done to obtain all DNS records (especially hidden subdomai
    ```
 
 5. If allowed, receive the entire zone file  
+
 6. Extract subdomains, IPs, mail servers, etc.
 
 ## Tools
