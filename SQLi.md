@@ -34,6 +34,28 @@ big payload cheatsheet can be found [here](https://portswigger.net/web-security/
 
 > steps 4 to 8 can be done using [this pdf](./SQLi_htb.pdf) 
 
+
+
+
+
+## Tools
+
+#### sqlmap
+
+ez tool to determine if SQLi is present, 
+
+- try sending request myself adn if Im brave enough exploit it myself
+
+- if no balls -> copy sus request as cURL and modify the request to match sqlmap syntax: 
+  
+  ```shellsession
+  $ sqlmap -u <url> -X <method> --batch 
+  ```
+  
+  flags `--risk <nmuber between 1 and 3> --level<nmuber between 1 and 5>` can help if basic command didnt help, `*` marks the parameter to attack specifically, `--prefix` can help if I suspect a userful perfix 
+
+
+
 ## Remarks
 
 1. On Oracle databases, every `SELECT` statement must specify a table to select `FROM` otherwise it will result in an error. There is a built-in table on Oracle called `dual` which you can use for this purpose. Example `UNION SELECT NULL,.. FROM dual`
