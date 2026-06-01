@@ -122,8 +122,6 @@ I can just add `system($_GET[0]);` to **its php file**(for example 404.php) and 
    
        <meta name="generator" content="Joomla! - Open Source Content Management" />
    ```
-   
-   
 
 ## Tools
 

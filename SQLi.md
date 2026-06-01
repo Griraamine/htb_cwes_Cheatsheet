@@ -4,11 +4,11 @@
 
 You can concatenate together multiple strings to make a single string.
 
-|            |                                                      |
+| DB         | IDK                                                  |
 | ---------- | ---------------------------------------------------- |
-| Oracle     | `'foo'\||'bar'`                                      |
+| Oracle     | `'foo'\|                                             |
 | Microsoft  | `'foo'+'bar'`                                        |
-| PostgreSQL | `'foo'\||'bar'`                                      |
+| PostgreSQL | `'foo'\|                                             |
 | MySQL      | `'foo' 'bar'` (using space)<br>`CONCAT('foo','bar')` |
 
 ## Substring
@@ -17,7 +17,7 @@ the word is 1 kindexed (indexing start at 1) and the substring is extracted by s
 
  `ba`.
 
-|            |                             |
+| DB         | IDK                         |
 | ---------- | --------------------------- |
 | Oracle     | `SUBSTR('foobar', 4, 2)`    |
 | Microsoft  | `SUBSTRING('foobar', 4, 2)` |
@@ -28,7 +28,7 @@ the word is 1 kindexed (indexing start at 1) and the substring is extracted by s
 
 You can use comments to truncate a query and remove the portion of the original query that follows your input.
 
-|            |                                                                                    |
+| DB         | IDK                                                                                |
 | ---------- | ---------------------------------------------------------------------------------- |
 | Oracle     | `--comment<br>`                                                                    |
 | Microsoft  | `--comment<br>/*comment*/`                                                         |
@@ -39,7 +39,7 @@ You can use comments to truncate a query and remove the portion of the original 
 
 You can query the database to determine its type and version. This information is useful when formulating more complicated attacks.
 
-|            |                                                                      |
+| DB         | IDK                                                                  |
 | ---------- | -------------------------------------------------------------------- |
 | Oracle     | `SELECT banner FROM v$version<br>SELECT version FROM v$instance<br>` |
 | Microsoft  | `SELECT @@version`                                                   |
@@ -50,7 +50,7 @@ You can query the database to determine its type and version. This information i
 
 You can list the tables that exist in the database, and the columns that those tables contain.
 
-|            |                                                                                                                                |
+| DB         | IDK                                                                                                                            |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Oracle     | `SELECT * FROM all_tables<br>SELECT * FROM all_tab_columns WHERE table_name = 'TABLE-NAME-HERE'`                               |
 | Microsoft  | `SELECT * FROM information_schema.tables<br>SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'<br>` |
@@ -61,7 +61,7 @@ You can list the tables that exist in the database, and the columns that those t
 
 You can test a single boolean condition and trigger a database error if the condition is true.
 
-|            |                                                                                         |
+| DB         | IDK                                                                                     |
 | ---------- | --------------------------------------------------------------------------------------- |
 | Oracle     | `SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN TO_CHAR(1/0) ELSE NULL END FROM dual`      |
 | Microsoft  | `SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/0 ELSE NULL END`                         |

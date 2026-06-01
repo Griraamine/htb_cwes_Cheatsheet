@@ -32,8 +32,6 @@ brute forcing can have sort of protections, for example:
 
 Many rate limit implementations rely on the IP address to identify the attacker which can be bypassed using `X-Forwarded-For` header (randomnizing IPs)
 
-
-
 ### Basic HTTP Authentication
 
 this header: `Authorization: Basic YWxpY2U6c2VjcmV0MTIz` specificallyt the `Basic` keyword marks the usage of basic authentication. the encoded string is simply **base64(username:password)**  or simply: 
@@ -41,8 +39,6 @@ this header: `Authorization: Basic YWxpY2U6c2VjcmV0MTIz` specificallyt the `Basi
 ![](file:///home/kira/Downloads/image(15).png) 
 
 this popup indicates the usage of the HTTP auth instead of custom login form  
-
- 
 
 this is a vulnerable php code, it checks if the session is active `if(!$_SESSION['active']) {header("Location: index.php");}`  if not it will redirect to `index.php` again, but before it will render the admin.php bexause there is no `exit;`  PHP continues executing the rest of `admin.php`
 
@@ -103,21 +99,7 @@ sesssion fixation is a vulnerability that arises when a web application does not
   
   so if attacker reuses the same token he will log to the admin account
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Tools
-
-
 
 #### Hydra
 
