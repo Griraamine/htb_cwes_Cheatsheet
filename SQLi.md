@@ -32,11 +32,7 @@ big payload cheatsheet can be found [here](https://portswigger.net/web-security/
 
 8. retrieve data :'D
 
-> steps 4 to 7 cna be done using [this pdf](../SQLi_htb.pdf) 
-
-
-
-
+> steps 4 to 8 can be done using [this pdf](./SQLi_htb.pdf) 
 
 ## Remarks
 
