@@ -58,12 +58,10 @@ $ gobuster vhost -u http://domain:port -w wordlist --append-domain
   dev.example.com
   test.example.com
   ```
-  
-  
 
 **Subdomain fuzzing** 
 
--  **using gobuster** : 
+- **using gobuster** : 
   
   ```shellsession
   $ gobuster dns --domain example.com -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt

@@ -167,3 +167,11 @@ the `-t` flag specifies the number of threads
 the  `-U` flag sets the username ( or list of usernames)
 
 the `-P` sets the password (here list of passwords)
+
+
+
+
+
+
+
+#### Searchsploit

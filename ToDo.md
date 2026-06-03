@@ -34,7 +34,7 @@ so the plan is simple:
 - Web Fuzzing    **(+ + - - )**
 - JavaScript Deobfuscation    **( + - - - )**
 - Cross-Site Scripting (XSS)    **( + - - - )**
-- SQL Injection Fundamentals    **( + - - - )**
+- SQL Injection Fundamentals    **( + + - - )**
 - SQLMap Essentials    **( + - - - )**
 - Command Injections    **( + - - - )**
 - File Upload Attacks    **( + - - - )**
