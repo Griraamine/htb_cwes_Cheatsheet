@@ -60,6 +60,7 @@ $ gobuster vhost -u http://domain:port -w wordlist --append-domain
   ```
 
 **Subdomain fuzzing** 
+(remember to add subdomains to /etc/hosts as you discover them)
 
 - **using gobuster** : 
   
@@ -78,6 +79,10 @@ add `--timeout 5s` if it gives error **[ERROR] lookup alpha.inlanefreight.com.: 
   ```
 
 > preffered wordlists for these fuzzing can be found at /usr/share/wordlists/SecLists/Discovery/DNS/
+
+**using CT LOGS**: Searching inCT Logs using [crt.sh](crt.sh) is a good way for subdomains enumeration. CT logs reveal current and historical subdomains from issued certificates, including hard-to-guess or potentially outdated vulnerable hosts, instead of fuzzing or bruteforcing.
+
+> remember subdomains can have subdomains, that means if I find idk.example.com i can find waa.idk.example.com that means its worth checking (rely on this idea and make sure there are no more subdomains you can stuck for long because of this )
 
 #### API fuzzing
 

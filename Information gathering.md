@@ -1,4 +1,4 @@
-# Information gathering
+/# Information gathering
 
 This is the first thing to do against a given IP address, 
 
@@ -9,7 +9,7 @@ This is the first thing to do against a given IP address,
 ### DNS Zone Transfers (AXFR)
 
 > CONCEPTS FIRST: 
-> 
+>
 > - primary and seconday DNS servers: servers that hold the same addressing (dns to ip) , its like a backup(if one dies the other can resolves the dns and the domain remains accessible) and load balanciing(many users query same domain) 
 > 
 > - only the primary is edited, the secondary takes a copy (zone transfer)
@@ -50,6 +50,20 @@ Zone transfer vuln is done to obtain all DNS records (especially hidden subdomai
 
 6. Extract subdomains, IPs, mail servers, etc.
 
+### DNS & subdomain using CT logs 
+
+**Searching in CT logs** using [crt.sh](https://crt.sh) is a good way for subdomains enumeration. CT logs reveal current and historical subdomains from issued certificates, including hard-to-guess or potentially outdated vulnerable hosts, instead of fuzzing or bruteforcing.
+
+### Fingerprinting
+
+just use tools, 
+one important thing is how to identify the used CMS :
+1. analyzing HTTP headers (`curl -I example.com` to analyze headers), I often find clues there, for example for WordPress i can find something like `X-Redirect-By: WordPress` , or link header like this `Link: <https://www.inlanefreight.com/index.php/wp-json/>; rel="https://api.w.org/"` , here thers is `wp-json`
+2. using nikto , the tool can return something like  `+ /: A Wordpress installation was found.` or `+ /wp-login.php: Wordpress login found`
+
+
+
+
 ## Tools
 
 #### WHOIS
@@ -64,6 +78,47 @@ $ whois example.com <OPTION>
 
 the options can be found in HTB module
 
+#### wafw00f
+
+a Web Application Firewall Fingerprinting Toolkit, it reveals if a web server is protected by WAF or not  
+Syntax:
+
+```
+$ wafw00f example.com
+```
+
+
+#### Nikto
+
+reveals a lot of informations to fingerprint the target (like IPs, server technology...)
+
+Syntax:
+
+```
+$ nikto -h inlanefreight.com -Tuning b
+```
+
+#### ReconSpider
+
+Crawls the target website for metadata 
+
+Syntax:
+
+```
+$ python3 ReconSpider.py https://example.com
+```
+it will return results.json with data extracted from the target website
+
+#### Final Recon
+
+an automation web recon tool it can retrieve informations such as `header information, Whois lookup, SSL certificate Information, Crawler, DNS ...`
+
+Syntax: 
+
+ ```
+ $ ./finalrecon.py --headers --whois --url http://example.com
+ ```
+
 ## Remarks:
 
 in the skill exercise of **DNS Zone Transfers**:
@@ -73,3 +128,5 @@ in the skill exercise of **DNS Zone Transfers**:
 > **Q:  since I have a domain why he gave me an IP addr I will do the 5 steps above and no IP was needed**
 > 
 > **R:here he means by 'on the targeted machine' that the targeted machine is the DNS server itself, so no need to search for server name,  the command of the solution is `dig AXFR @TARGETED_SYSTEM domain`**
+
+
